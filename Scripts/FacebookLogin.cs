@@ -34,7 +34,10 @@ namespace MultiplayerARPG.MMO
                 FB.ActivateApp();
             }
             else
-                Debug.LogError("Failed to Initialize the Facebook SDK");
+            {
+                // Show error message
+                UISceneGlobal.Singleton.ShowMessageDialog("Error", "Failed to Initialize the Facebook SDK");
+            }
         }
 
         public void OnClickFacebookLogin()
@@ -62,9 +65,15 @@ namespace MultiplayerARPG.MMO
         private void AuthCallback(ILoginResult result)
         {
             if (FB.IsLoggedIn)
+            {
+                // When facebook login success, send login request to server
                 RequestFacebookLogin(AccessToken.CurrentAccessToken.UserId, AccessToken.CurrentAccessToken.TokenString);
+            }
             else
-                Debug.Log("User cancelled login");
+            {
+                // Show error message
+                UISceneGlobal.Singleton.ShowMessageDialog("Cannot Login", "User cancelled login");
+            }
         }
 
         public void OnLogin(AckResponseCode responseCode, BaseAckMessage message)
