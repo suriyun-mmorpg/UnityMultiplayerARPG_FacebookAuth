@@ -46,14 +46,14 @@ namespace MultiplayerARPG.MMO
                 RequestFacebookLogin(AccessToken.CurrentAccessToken.UserId, AccessToken.CurrentAccessToken.TokenString);
             else
             {
-                var perms = new List<string>() { "public_profile", "email" };
+                List<string> perms = new List<string>() { "public_profile", "email" };
                 FB.LogInWithReadPermissions(perms, AuthCallback);
             }
         }
 
         private void RequestFacebookLogin(string id, string accessToken)
         {
-            var uiSceneGlobal = UISceneGlobal.Singleton;
+            UISceneGlobal uiSceneGlobal = UISceneGlobal.Singleton;
             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(accessToken))
             {
                 uiSceneGlobal.ShowMessageDialog("Cannot login", "User ID or access token is empty");
@@ -78,11 +78,11 @@ namespace MultiplayerARPG.MMO
 
         public void OnLogin(AckResponseCode responseCode, BaseAckMessage message)
         {
-            var castedMessage = (ResponseUserLoginMessage)message;
+            ResponseUserLoginMessage castedMessage = (ResponseUserLoginMessage)message;
             switch (responseCode)
             {
                 case AckResponseCode.Error:
-                    var errorMessage = string.Empty;
+                    string errorMessage = string.Empty;
                     switch (castedMessage.error)
                     {
                         case ResponseUserLoginMessage.Error.AlreadyLogin:
