@@ -435,26 +435,15 @@ MonoBehaviour:
   connectKey: SampleConnectKey
   networkAddress: localhost
   networkPort: 7770
-  unconnectedMessagesEnabled: 0
-  natPunchEnabled: 0
-  updateTime: 15
-  pingInterval: 1000
-  disconnectTimeout: 5000
-  mergeEnabled: 0
-  simulatePacketLoss: 0
-  simulateLatency: 0
-  simulationPacketLossChance: 10
-  simulationMinLatency: 30
-  simulationMaxLatency: 100
-  discoveryEnabled: 0
-  discoveryRequestData: 
-  discoveryResponseData: 
+  useWebSocket: 0
   maxConnections: 1100
-  reconnectDelay: 500
-  maxConnectAttempts: 10
+  transportFactory: {fileID: 0}
+  updateServerTimeDuration: 5
   doNotEnterGameOnConnect: 0
   doNotDestroyOnSceneChanges: 0
   writeAddonLog: 0
+  mapInstanceId: 
+  centralTransportFactory: {fileID: 0}
   centralConnectKey: SampleConnectKey
   centralNetworkAddress: 127.0.0.1
   centralNetworkPort: 6000
@@ -507,7 +496,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: LiteNetLibManager.LiteNetLibLoadSceneEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: LiteNetLibManager.LiteNetLibLoadSceneEvent, LiteNetLibManager, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onLoadSceneProgress:
     m_PersistentCalls:
@@ -523,7 +512,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: LiteNetLibManager.LiteNetLibLoadSceneEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: LiteNetLibManager.LiteNetLibLoadSceneEvent, LiteNetLibManager, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   onLoadSceneFinish:
     m_PersistentCalls:
@@ -539,7 +528,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: LiteNetLibManager.LiteNetLibLoadSceneEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: LiteNetLibManager.LiteNetLibLoadSceneEvent, LiteNetLibManager, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!1 &1232480984
 GameObject:
@@ -657,6 +646,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca66ed5b09dc41447ad7cf901faa5e46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dimensionType: 0
   gameplayRule: {fileID: 11400000, guid: 3bfe680a81b27ce4ba9642ddff7baa17, type: 2}
   networkSetting: {fileID: 11400000, guid: c0825e8ee894749459ab4c8dda26dfe6, type: 2}
   itemDropEntityPrefab: {fileID: 114247390284341630, guid: 611b907cf80c87a4eb9e0d5d4a8688f5,
@@ -667,14 +657,17 @@ MonoBehaviour:
     type: 2}
   uiSceneGameplayMobilePrefab: {fileID: 114630585920460692, guid: 70474cf4f9f686c45b0305621722205f,
     type: 2}
+  defaultControllerPrefab: {fileID: 0}
   serverCharacterPrefab: {fileID: 114427175623056218, guid: 5d1fef0b895ca2a43899fb0236936a59,
     type: 2}
   owningCharacterObjects:
   - {fileID: 1555851488130254, guid: 90f99869b96e2df4bae83e1f870b68ec, type: 2}
   owningCharacterMiniMapObjects:
   - {fileID: 1620662158371272, guid: f94b43a3f251a6a41849b19fe0aa4fa5, type: 2}
+  nonOwningCharacterMiniMapObjects: []
   monsterCharacterMiniMapObjects:
   - {fileID: 1237499379163380, guid: 2d0368f81f8351144a6b29dc200981b4, type: 2}
+  npcMiniMapObjects: []
   owningCharacterUI: {fileID: 114899762762614018, guid: 8447ca51d1886764e99f26df8033c4c5,
     type: 2}
   nonOwningCharacterUI: {fileID: 114899762762614018, guid: cf8cfe06d3da49e4ab083bd040961dd5,
@@ -692,6 +685,7 @@ MonoBehaviour:
   gameDatabase: {fileID: 11400000, guid: 78362f3a31c322e4396aa7f42ea58f99, type: 2}
   warpPortalDatabase: {fileID: 11400000, guid: f172355d1b582ff4b95a482eaf2c7b61, type: 2}
   npcDatabase: {fileID: 11400000, guid: dae14f7f7d125fc4096ba7ac1f68d581, type: 2}
+  socialSystemSetting: {fileID: 0}
   playerTag:
     tag: PlayerTag
   monsterTag:
@@ -715,10 +709,28 @@ MonoBehaviour:
   nonTargetingLayers:
   - layerIndex: 11
   itemAppearDuration: 60
+  itemLootLockDuration: 5
+  coCharacterActionDuration: 5
   pickUpItemDistance: 2
   dropDistance: 1
   conversationDistance: 3
   buildDistance: 10
+  localChatDistance: 10
+  inventorySystem: 0
+  playerStorage:
+    weightLimit: 0
+    slotLimit: 0
+  guildStorage:
+    weightLimit: 0
+    slotLimit: 0
+  minSummonDistance: 2
+  maxSummonDistance: 3
+  enemySpottedNotifyDistance: 5
+  minFollowSummonerDistance: 5
+  maxFollowSummonerDistance: 10
+  petDeadLockDuration: 60
+  petUnSummonLockDuration: 30
+  joinInstanceMapDistance: 20
   levelUpEffect: {fileID: 114843870614705530, guid: 6f6e255b4877f874c985ed9fb46293a1,
     type: 2}
   startGold: 2000
@@ -766,7 +778,6 @@ MonoBehaviour:
     sceneName: 01Home_MMO_FacebookAuth
   minCharacterNameLength: 2
   maxCharacterNameLength: 16
-  doNotLoadHomeSceneOnLoadedGameData: 0
   useMobileInEditor: 0
   cashShopDatabase: {fileID: 11400000, guid: 677c37c598e6c1045b66de68f1f546f6, type: 2}
 --- !u!4 &1379718503
@@ -804,6 +815,8 @@ MonoBehaviour:
     keyCode: 118
   - keyName: Jump
     keyCode: 32
+  - keyName: FindEnemy
+    keyCode: 9
 --- !u!114 &1379718505
 MonoBehaviour:
   m_ObjectHideFlags: 0
