@@ -11,6 +11,12 @@ namespace MultiplayerARPG.MMO
 {
     public partial class CentralNetworkManager
     {
+        [DevExtMethods("RegisterServerMessages")]
+        protected void RegisterServerMessages_FacebookLogin()
+        {
+            RegisterServerMessage(MMOMessageTypes.RequestFacebookLogin, HandleRequestFacebookLogin);
+        }
+
         public uint RequestFacebookLogin(string id, string accessToken, AckMessageCallback callback)
         {
             RequestFacebookLoginMessage message = new RequestFacebookLoginMessage();
