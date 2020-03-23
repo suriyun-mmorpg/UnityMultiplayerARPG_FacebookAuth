@@ -22,7 +22,7 @@ namespace MultiplayerARPG.MMO
             RequestFacebookLoginMessage message = new RequestFacebookLoginMessage();
             message.id = id;
             message.accessToken = accessToken;
-            return Client.ClientSendAckPacket(DeliveryMethod.ReliableOrdered, MMOMessageTypes.RequestFacebookLogin, message, callback);
+            return ClientSendRequest(MMOMessageTypes.RequestFacebookLogin, message, callback);
         }
         protected void HandleRequestFacebookLogin(LiteNetLibMessageHandler messageHandler)
         {
@@ -79,7 +79,7 @@ namespace MultiplayerARPG.MMO
             responseMessage.error = error;
             responseMessage.userId = userId;
             responseMessage.accessToken = accessToken;
-            ServerSendPacket(connectionId, DeliveryMethod.ReliableOrdered, MMOMessageTypes.ResponseUserLogin, responseMessage);
+            ServerSendResponse(connectionId, MMOMessageTypes.ResponseUserLogin, responseMessage);
         }
     }
 }
