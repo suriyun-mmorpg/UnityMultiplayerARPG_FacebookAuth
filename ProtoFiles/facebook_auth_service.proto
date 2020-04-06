@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+service FacebookAuthService {
+    rpc FacebookLogin (FacebookLoginReq) returns (FacebookLoginResp);
+}
+
+message FacebookLoginReq {
+    string id = 1;
+    string email = 2;
+}
+
+message FacebookLoginResp {
+    string user_id = 1;
+}
