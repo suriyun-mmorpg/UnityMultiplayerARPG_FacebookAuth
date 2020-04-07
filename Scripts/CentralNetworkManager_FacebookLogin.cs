@@ -1,4 +1,5 @@
-﻿using LiteNetLib;
+﻿using Google.Protobuf;
+using LiteNetLib.Utils;
 using LiteNetLibManager;
 using MiniJSON;
 using System;
@@ -6,15 +7,39 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace MultiplayerARPG.MMO
 {
     public partial class CentralNetworkManager
     {
+        public const int CUSTOM_REQUEST_FACEBOOK_LOGIN = 110;
+
         [DevExtMethods("RegisterServerMessages")]
         protected void RegisterServerMessages_FacebookLogin()
         {
             RegisterServerMessage(MMOMessageTypes.RequestFacebookLogin, HandleRequestFacebookLogin);
+        }
+
+        [DevExtMethods("OnStartServer")]
+        protected void OnStartServer_FacebookLogin()
+        {
+            DatabaseServiceImplement.onCustomRequest -= onCustomRequest_FacebookLogin;
+            DatabaseServiceImplement.onCustomRequest += onCustomRequest_FacebookLogin;
+        }
+
+        public async Task<CustomResp> onCustomRequest_FacebookLogin(int type, ByteString data)
+        {
+            await Task.Yield();
+            if (type == CUSTOM_REQUEST_FACEBOOK_LOGIN)
+            {
+                NetDataReader reader = new NetDataReader(data.ToByteArray());
+                MMOServerInstance.Singleton.DatabaseNetworkManager.Database.FacebookLogin(reader.GetString(), reader.GetString());
+            }
+            return new CustomResp()
+            {
+                Type = 0
+            };
         }
 
         public uint RequestFacebookLogin(string id, string accessToken, AckMessageCallback callback)
@@ -26,10 +51,10 @@ namespace MultiplayerARPG.MMO
         }
         protected void HandleRequestFacebookLogin(LiteNetLibMessageHandler messageHandler)
         {
-            StartCoroutine(HandleRequestFacebookLoginRoutine(messageHandler));
+            HandleRequestFacebookLoginRoutine(messageHandler);
         }
 
-        private IEnumerator HandleRequestFacebookLoginRoutine(LiteNetLibMessageHandler messageHandler)
+        async void HandleRequestFacebookLoginRoutine(LiteNetLibMessageHandler messageHandler)
         {
             long connectionId = messageHandler.connectionId;
             RequestFacebookLoginMessage message = messageHandler.ReadMessage<RequestFacebookLoginMessage>();
@@ -44,11 +69,20 @@ namespace MultiplayerARPG.MMO
             Dictionary<string, object> dict = Json.Deserialize(json) as Dictionary<string, object>;
             if (dict.ContainsKey("id") && dict.ContainsKey("email"))
             {
+                string fbId = message.id;
                 string email = (string)dict["email"];
-                FacebookLoginJob job = new FacebookLoginJob(Database, message.id, email);
-                job.Start();
-                yield return StartCoroutine(job.WaitFor());
-                userId = job.result;
+                // Send request to database server
+                NetDataWriter writer = new NetDataWriter();
+                writer.Put(fbId);
+                writer.Put(email);
+                CustomResp resp = await DbServiceClient.CustomAsync(new CustomReq()
+                {
+                    Type = CUSTOM_REQUEST_FACEBOOK_LOGIN,
+                    Data = ByteString.CopyFrom(writer.Data)
+                });
+                // Receive response from database server
+                NetDataReader reader = new NetDataReader(resp.Data.ToByteArray());
+                userId = reader.GetString();
             }
             // Response clients
             if (string.IsNullOrEmpty(userId))
@@ -69,9 +103,11 @@ namespace MultiplayerARPG.MMO
                 userPeerInfo.accessToken = accessToken = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
                 userPeersByUserId[userId] = userPeerInfo;
                 userPeers[connectionId] = userPeerInfo;
-                UpdateAccessTokenJob updateAccessTokenJob = new UpdateAccessTokenJob(Database, userId, accessToken);
-                updateAccessTokenJob.Start();
-                yield return StartCoroutine(updateAccessTokenJob.WaitFor());
+                await DbServiceClient.UpdateAccessTokenAsync(new UpdateAccessTokenReq()
+                {
+                    UserId = userId,
+                    AccessToken = accessToken
+                });
             }
             ResponseUserLoginMessage responseMessage = new ResponseUserLoginMessage();
             responseMessage.ackId = message.ackId;
