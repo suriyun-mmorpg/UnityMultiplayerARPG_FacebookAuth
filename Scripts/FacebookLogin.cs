@@ -12,7 +12,7 @@ namespace MultiplayerARPG.MMO
         public UnityEvent onLoginSuccess;
         public UnityEvent onLoginFail;
 
-        private void Awake()
+        private void Start()
         {
             if (!FB.IsInitialized)
             {
