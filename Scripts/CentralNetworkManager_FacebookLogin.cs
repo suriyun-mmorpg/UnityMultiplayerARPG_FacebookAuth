@@ -30,15 +30,18 @@ namespace MultiplayerARPG.MMO
 
         public async Task<CustomResp> onCustomRequest_FacebookLogin(int type, ByteString data)
         {
-            await Task.Yield();
+            string userId = string.Empty;
             if (type == CUSTOM_REQUEST_FACEBOOK_LOGIN)
             {
                 NetDataReader reader = new NetDataReader(data.ToByteArray());
-                MMOServerInstance.Singleton.DatabaseNetworkManager.Database.FacebookLogin(reader.GetString(), reader.GetString());
+                userId = await MMOServerInstance.Singleton.DatabaseNetworkManager.Database.FacebookLogin(reader.GetString(), reader.GetString());
             }
+            NetDataWriter writer = new NetDataWriter();
+            writer.Put(userId);
             return new CustomResp()
             {
-                Type = 0
+                Type = CUSTOM_REQUEST_FACEBOOK_LOGIN,
+                Data = ByteString.CopyFrom(writer.Data)
             };
         }
 
