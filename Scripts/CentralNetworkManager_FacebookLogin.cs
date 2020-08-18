@@ -1,4 +1,5 @@
-﻿using Google.Protobuf;
+﻿using Cysharp.Threading.Tasks;
+using Google.Protobuf;
 using LiteNetLib.Utils;
 using LiteNetLibManager;
 using MiniJSON;
@@ -54,10 +55,10 @@ namespace MultiplayerARPG.MMO
         }
         protected void HandleRequestFacebookLogin(LiteNetLibMessageHandler messageHandler)
         {
-            HandleRequestFacebookLoginRoutine(messageHandler);
+            HandleRequestFacebookLoginRoutine(messageHandler).Forget();
         }
 
-        async void HandleRequestFacebookLoginRoutine(LiteNetLibMessageHandler messageHandler)
+        async UniTaskVoid HandleRequestFacebookLoginRoutine(LiteNetLibMessageHandler messageHandler)
         {
             long connectionId = messageHandler.connectionId;
             RequestFacebookLoginMessage message = messageHandler.ReadMessage<RequestFacebookLoginMessage>();

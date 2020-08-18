@@ -1,11 +1,11 @@
-﻿using MySqlConnector;
-using System.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
+using MySqlConnector;
 
 namespace MultiplayerARPG.MMO
 {
     public partial class MySQLDatabase
     {
-        public override async Task<string> FacebookLogin(string fbId, string email)
+        public override async UniTask<string> FacebookLogin(string fbId, string email)
         {
             string id = string.Empty;
             await ExecuteReader((reader) =>
