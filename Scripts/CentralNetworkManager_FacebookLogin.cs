@@ -1,19 +1,21 @@
-﻿using Cysharp.Threading.Tasks;
+﻿#if UNITY_STANDALONE && !CLIENT_BUILD
+using Cysharp.Threading.Tasks;
 using Google.Protobuf;
 using LiteNetLib.Utils;
-using LiteNetLibManager;
 using MiniJSON;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+#endif
+using LiteNetLibManager;
 
 namespace MultiplayerARPG.MMO
 {
     public partial class CentralNetworkManager
     {
+#if UNITY_STANDALONE && !CLIENT_BUILD
         public const int CUSTOM_REQUEST_FACEBOOK_LOGIN = 110;
 
         [DevExtMethods("RegisterServerMessages")]
@@ -46,13 +48,6 @@ namespace MultiplayerARPG.MMO
             };
         }
 
-        public uint RequestFacebookLogin(string id, string accessToken, AckMessageCallback callback)
-        {
-            RequestFacebookLoginMessage message = new RequestFacebookLoginMessage();
-            message.id = id;
-            message.accessToken = accessToken;
-            return ClientSendRequest(MMOMessageTypes.RequestFacebookLogin, message, callback);
-        }
         protected void HandleRequestFacebookLogin(LiteNetLibMessageHandler messageHandler)
         {
             HandleRequestFacebookLoginRoutine(messageHandler).Forget();
@@ -120,6 +115,15 @@ namespace MultiplayerARPG.MMO
             responseMessage.userId = userId;
             responseMessage.accessToken = accessToken;
             ServerSendResponse(connectionId, MMOMessageTypes.ResponseUserLogin, responseMessage);
+        }
+#endif
+
+        public uint RequestFacebookLogin(string id, string accessToken, AckMessageCallback callback)
+        {
+            RequestFacebookLoginMessage message = new RequestFacebookLoginMessage();
+            message.id = id;
+            message.accessToken = accessToken;
+            return ClientSendRequest(MMOMessageTypes.RequestFacebookLogin, message, callback);
         }
     }
 }
