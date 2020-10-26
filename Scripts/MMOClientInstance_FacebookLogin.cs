@@ -4,9 +4,9 @@ namespace MultiplayerARPG.MMO
 {
     public partial class MMOClientInstance
     {
-        public void RequestFacebookLogin(string id, string accessToken, AckMessageCallback callback)
+        public void RequestFacebookLogin(string id, string accessToken, AckMessageCallback<ResponseUserLoginMessage> callback)
         {
-            centralNetworkManager.RequestFacebookLogin(id, accessToken, (responseCode, messageData) => OnRequestUserLogin(responseCode, messageData, callback));
+            centralNetworkManager.RequestFacebookLogin(id, accessToken, (messageData) => OnRequestUserLogin(messageData, callback));
         }
     }
 }

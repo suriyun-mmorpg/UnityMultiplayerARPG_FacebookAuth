@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 #endif
 using LiteNetLibManager;
+using UnityEngine;
 
 namespace MultiplayerARPG.MMO
 {
@@ -17,11 +18,13 @@ namespace MultiplayerARPG.MMO
     {
 #if UNITY_STANDALONE && !CLIENT_BUILD
         public const int CUSTOM_REQUEST_FACEBOOK_LOGIN = 110;
+        [Header("Facebook Login")]
+        public ushort facebookLoginRequestMsgType = 50;
 
         [DevExtMethods("RegisterServerMessages")]
         protected void RegisterServerMessages_FacebookLogin()
         {
-            RegisterServerMessage(MMOMessageTypes.RequestFacebookLogin, HandleRequestFacebookLogin);
+            RegisterServerMessage(facebookLoginRequestMsgType, HandleRequestFacebookLogin);
         }
 
         [DevExtMethods("OnStartServer")]
@@ -108,22 +111,23 @@ namespace MultiplayerARPG.MMO
                     AccessToken = accessToken
                 });
             }
-            ResponseUserLoginMessage responseMessage = new ResponseUserLoginMessage();
-            responseMessage.ackId = message.ackId;
-            responseMessage.responseCode = error == ResponseUserLoginMessage.Error.None ? AckResponseCode.Success : AckResponseCode.Error;
-            responseMessage.error = error;
-            responseMessage.userId = userId;
-            responseMessage.accessToken = accessToken;
-            ServerSendResponse(connectionId, MMOMessageTypes.ResponseUserLogin, responseMessage);
+            ServerSendResponse(connectionId, new ResponseUserLoginMessage()
+            {
+                ackId = message.ackId,
+                responseCode = error == ResponseUserLoginMessage.Error.None ? AckResponseCode.Success : AckResponseCode.Error,
+                error = error,
+                userId = userId,
+                accessToken = accessToken,
+            });
         }
 #endif
 
-        public uint RequestFacebookLogin(string id, string accessToken, AckMessageCallback callback)
+        public uint RequestFacebookLogin(string id, string accessToken, AckMessageCallback<ResponseUserLoginMessage> callback)
         {
             RequestFacebookLoginMessage message = new RequestFacebookLoginMessage();
             message.id = id;
             message.accessToken = accessToken;
-            return ClientSendRequest(MMOMessageTypes.RequestFacebookLogin, message, callback);
+            return ClientSendRequest(facebookLoginRequestMsgType, message, callback);
         }
     }
 }
