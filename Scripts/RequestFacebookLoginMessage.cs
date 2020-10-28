@@ -1,22 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using LiteNetLibManager;
-using LiteNetLib.Utils;
+﻿using LiteNetLib.Utils;
 
 namespace MultiplayerARPG.MMO
 {
-    public class RequestFacebookLoginMessage : BaseAckMessage
+    public struct RequestFacebookLoginMessage : INetSerializable
     {
         public string id;
         public string accessToken;
 
-        public override void DeserializeData(NetDataReader reader)
+        public void Deserialize(NetDataReader reader)
         {
             id = reader.GetString();
             accessToken = reader.GetString();
         }
 
-        public override void SerializeData(NetDataWriter writer)
+        public void Serialize(NetDataWriter writer)
         {
             writer.Put(id);
             writer.Put(accessToken);

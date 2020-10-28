@@ -24,7 +24,7 @@ namespace MultiplayerARPG.MMO
         [DevExtMethods("RegisterServerMessages")]
         protected void RegisterServerMessages_FacebookLogin()
         {
-            RegisterServerMessage(facebookLoginRequestMsgType, HandleRequestFacebookLogin);
+            RegisterServerRequest<RequestFacebookLoginMessage, ResponseUserLoginMessage>(facebookLoginRequestMsgType, HandleRequestFacebookLogin);
         }
 
         [DevExtMethods("OnStartServer")]
@@ -51,27 +51,22 @@ namespace MultiplayerARPG.MMO
             };
         }
 
-        protected void HandleRequestFacebookLogin(LiteNetLibMessageHandler messageHandler)
+        protected async UniTaskVoid HandleRequestFacebookLogin(
+            RequestHandlerData requestHandler, RequestFacebookLoginMessage request,
+            RequestProceedResultDelegate<ResponseUserLoginMessage> result)
         {
-            HandleRequestFacebookLoginRoutine(messageHandler).Forget();
-        }
-
-        async UniTaskVoid HandleRequestFacebookLoginRoutine(LiteNetLibMessageHandler messageHandler)
-        {
-            long connectionId = messageHandler.connectionId;
-            RequestFacebookLoginMessage message = messageHandler.ReadMessage<RequestFacebookLoginMessage>();
             ResponseUserLoginMessage.Error error = ResponseUserLoginMessage.Error.None;
             string userId = string.Empty;
             string accessToken = string.Empty;
             // Validate by facebook api
-            string url = "https://graph.facebook.com/" + message.id + "?access_token=" + message.accessToken + "&fields=id,name,email";
+            string url = "https://graph.facebook.com/" + request.id + "?access_token=" + request.accessToken + "&fields=id,name,email";
             WebClient webClient = new WebClient();
             string json = webClient.DownloadString(url);
             json = json.Replace(@"\u0040", "@");
             Dictionary<string, object> dict = Json.Deserialize(json) as Dictionary<string, object>;
             if (dict.ContainsKey("id") && dict.ContainsKey("email"))
             {
-                string fbId = message.id;
+                string fbId = request.id;
                 string email = (string)dict["email"];
                 // Send request to database server
                 NetDataWriter writer = new NetDataWriter();
@@ -83,8 +78,8 @@ namespace MultiplayerARPG.MMO
                     Data = ByteString.CopyFrom(writer.Data)
                 });
                 // Receive response from database server
-                NetDataReader reader = new NetDataReader(resp.Data.ToByteArray());
-                userId = reader.GetString();
+                NetDataReader dbReader = new NetDataReader(resp.Data.ToByteArray());
+                userId = dbReader.GetString();
             }
             // Response clients
             if (string.IsNullOrEmpty(userId))
@@ -100,34 +95,36 @@ namespace MultiplayerARPG.MMO
             else
             {
                 CentralUserPeerInfo userPeerInfo = new CentralUserPeerInfo();
-                userPeerInfo.connectionId = connectionId;
+                userPeerInfo.connectionId = requestHandler.ConnectionId;
                 userPeerInfo.userId = userId;
                 userPeerInfo.accessToken = accessToken = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
                 userPeersByUserId[userId] = userPeerInfo;
-                userPeers[connectionId] = userPeerInfo;
+                userPeers[requestHandler.ConnectionId] = userPeerInfo;
                 await DbServiceClient.UpdateAccessTokenAsync(new UpdateAccessTokenReq()
                 {
                     UserId = userId,
                     AccessToken = accessToken
                 });
             }
-            ServerSendResponse(connectionId, new ResponseUserLoginMessage()
-            {
-                ackId = message.ackId,
-                responseCode = error == ResponseUserLoginMessage.Error.None ? AckResponseCode.Success : AckResponseCode.Error,
-                error = error,
-                userId = userId,
-                accessToken = accessToken,
-            });
+            // Response
+            result.Invoke(
+                 error == ResponseUserLoginMessage.Error.None ? AckResponseCode.Success : AckResponseCode.Error,
+                new ResponseUserLoginMessage()
+                {
+                    error = error,
+                    userId = userId,
+                    accessToken = accessToken,
+                });
         }
 #endif
 
-        public uint RequestFacebookLogin(string id, string accessToken, AckMessageCallback<ResponseUserLoginMessage> callback)
+        public bool RequestFacebookLogin(string id, string accessToken, ResponseDelegate extraResponseCallback)
         {
-            RequestFacebookLoginMessage message = new RequestFacebookLoginMessage();
-            message.id = id;
-            message.accessToken = accessToken;
-            return ClientSendRequest(facebookLoginRequestMsgType, message, callback);
+            return ClientSendRequest(facebookLoginRequestMsgType, new RequestFacebookLoginMessage()
+            {
+                id = id,
+                accessToken = accessToken
+            }, responseDelegate: extraResponseCallback);
         }
     }
 }
