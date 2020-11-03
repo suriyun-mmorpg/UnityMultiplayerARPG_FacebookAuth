@@ -19,12 +19,12 @@ namespace MultiplayerARPG.MMO
 #if UNITY_STANDALONE && !CLIENT_BUILD
         public const int CUSTOM_REQUEST_FACEBOOK_LOGIN = 110;
         [Header("Facebook Login")]
-        public ushort facebookLoginRequestMsgType = 50;
+        public ushort facebookLoginRequestType = 210;
 
         [DevExtMethods("RegisterServerMessages")]
         protected void RegisterServerMessages_FacebookLogin()
         {
-            RegisterServerRequest<RequestFacebookLoginMessage, ResponseUserLoginMessage>(facebookLoginRequestMsgType, HandleRequestFacebookLogin);
+            RegisterServerRequest<RequestFacebookLoginMessage, ResponseUserLoginMessage>(facebookLoginRequestType, HandleRequestFacebookLogin);
         }
 
         [DevExtMethods("OnStartServer")]
@@ -120,7 +120,7 @@ namespace MultiplayerARPG.MMO
 
         public bool RequestFacebookLogin(string id, string accessToken, ResponseDelegate extraResponseCallback)
         {
-            return ClientSendRequest(facebookLoginRequestMsgType, new RequestFacebookLoginMessage()
+            return ClientSendRequest(facebookLoginRequestType, new RequestFacebookLoginMessage()
             {
                 id = id,
                 accessToken = accessToken
