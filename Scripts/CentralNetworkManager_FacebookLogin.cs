@@ -16,10 +16,10 @@ namespace MultiplayerARPG.MMO
 {
     public partial class CentralNetworkManager
     {
-#if UNITY_STANDALONE && !CLIENT_BUILD
-        public const int CUSTOM_REQUEST_FACEBOOK_LOGIN = 110;
         [Header("Facebook Login")]
         public ushort facebookLoginRequestType = 210;
+#if UNITY_STANDALONE && !CLIENT_BUILD
+        public const int CUSTOM_REQUEST_FACEBOOK_LOGIN = 110;
 
         [DevExtMethods("RegisterServerMessages")]
         protected void RegisterServerMessages_FacebookLogin()
