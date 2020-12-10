@@ -119,13 +119,13 @@ namespace MultiplayerARPG.MMO
         }
 #endif
 
-        public bool RequestFacebookLogin(string id, string accessToken, ResponseDelegate extraResponseCallback)
+        public bool RequestFacebookLogin(string id, string accessToken, ResponseDelegate callback)
         {
             return ClientSendRequest(facebookLoginRequestType, new RequestFacebookLoginMessage()
             {
                 id = id,
                 accessToken = accessToken
-            }, responseDelegate: extraResponseCallback);
+            }, responseDelegate: callback);
         }
     }
 }
