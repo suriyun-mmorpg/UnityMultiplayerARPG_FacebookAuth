@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using LiteNetLibManager;
 using Facebook.Unity;
-using LiteNetLib.Utils;
+using Cysharp.Threading.Tasks;
 
 namespace MultiplayerARPG.MMO
 {
@@ -76,8 +76,9 @@ namespace MultiplayerARPG.MMO
             }
         }
 
-        public void OnLogin(ResponseHandlerData responseHandler, AckResponseCode responseCode, INetSerializable response)
+        public async UniTaskVoid OnLogin(ResponseHandlerData responseHandler, AckResponseCode responseCode, ResponseUserLoginMessage response)
         {
+            await UniTask.Yield();
             if (responseCode == AckResponseCode.Timeout)
             {
                 UISceneGlobal.Singleton.ShowMessageDialog(LanguageManager.GetText(UITextKeys.UI_LABEL_ERROR.ToString()), LanguageManager.GetText(UITextKeys.UI_ERROR_CONNECTION_TIMEOUT.ToString()));
@@ -85,12 +86,11 @@ namespace MultiplayerARPG.MMO
                     onLoginFail.Invoke();
                 return;
             }
-            ResponseUserLoginMessage castedResponse = response as ResponseUserLoginMessage;
             switch (responseCode)
             {
                 case AckResponseCode.Error:
                     string errorMessage = string.Empty;
-                    switch (castedResponse.error)
+                    switch (response.error)
                     {
                         case ResponseUserLoginMessage.Error.AlreadyLogin:
                             errorMessage = LanguageManager.GetText(UITextKeys.UI_ERROR_ALREADY_LOGGED_IN.ToString());

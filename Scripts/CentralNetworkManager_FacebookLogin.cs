@@ -119,7 +119,7 @@ namespace MultiplayerARPG.MMO
         }
 #endif
 
-        public bool RequestFacebookLogin(string id, string accessToken, ResponseDelegate callback)
+        public bool RequestFacebookLogin(string id, string accessToken, ResponseDelegate<ResponseUserLoginMessage> callback)
         {
             return ClientSendRequest(facebookLoginRequestType, new RequestFacebookLoginMessage()
             {
