@@ -56,7 +56,7 @@ namespace MultiplayerARPG.MMO
             RequestHandlerData requestHandler, RequestFacebookLoginMessage request,
             RequestProceedResultDelegate<ResponseUserLoginMessage> result)
         {
-            ResponseUserLoginMessage.Error error = ResponseUserLoginMessage.Error.None;
+            UITextKeys error = UITextKeys.NONE;
             string userId = string.Empty;
             string accessToken = string.Empty;
             // Validate by facebook api
@@ -85,12 +85,12 @@ namespace MultiplayerARPG.MMO
             // Response clients
             if (string.IsNullOrEmpty(userId))
             {
-                error = ResponseUserLoginMessage.Error.InvalidUsernameOrPassword;
+                error = UITextKeys.UI_ERROR_INVALID_USERNAME_OR_PASSWORD;
                 userId = string.Empty;
             }
             else if (userPeersByUserId.ContainsKey(userId) || MapContainsUser(userId))
             {
-                error = ResponseUserLoginMessage.Error.AlreadyLogin;
+                error = UITextKeys.UI_ERROR_ALREADY_LOGGED_IN;
                 userId = string.Empty;
             }
             else
@@ -109,7 +109,7 @@ namespace MultiplayerARPG.MMO
             }
             // Response
             result.Invoke(
-                 error == ResponseUserLoginMessage.Error.None ? AckResponseCode.Success : AckResponseCode.Error,
+                 error == UITextKeys.NONE ? AckResponseCode.Success : AckResponseCode.Error,
                 new ResponseUserLoginMessage()
                 {
                     error = error,
