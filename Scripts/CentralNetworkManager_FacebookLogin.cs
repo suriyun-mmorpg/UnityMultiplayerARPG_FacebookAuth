@@ -25,7 +25,7 @@ namespace MultiplayerARPG.MMO
         [DevExtMethods("RegisterServerMessages")]
         protected void RegisterServerMessages_FacebookLogin()
         {
-            RegisterServerRequest<RequestFacebookLoginMessage, ResponseUserLoginMessage>(facebookLoginRequestType, HandleRequestFacebookLogin);
+            RegisterRequestToServer<RequestFacebookLoginMessage, ResponseUserLoginMessage>(facebookLoginRequestType, HandleRequestFacebookLogin);
         }
 
         [DevExtMethods("OnStartServer")]
