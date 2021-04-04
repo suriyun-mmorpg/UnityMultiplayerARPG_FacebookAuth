@@ -1,13 +1,10 @@
 ﻿#if UNITY_STANDALONE && !CLIENT_BUILD
 using Cysharp.Threading.Tasks;
-using Google.Protobuf;
-using LiteNetLib.Utils;
 using MiniJSON;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 #endif
 using LiteNetLibManager;
 using UnityEngine;
@@ -16,8 +13,6 @@ namespace MultiplayerARPG.MMO
 {
     public partial class CentralNetworkManager
     {
-        public const int CUSTOM_REQUEST_FACEBOOK_LOGIN = 110;
-
         [Header("Facebook Login")]
         public ushort facebookLoginRequestType = 210;
 
@@ -26,30 +21,6 @@ namespace MultiplayerARPG.MMO
         protected void RegisterServerMessages_FacebookLogin()
         {
             RegisterRequestToServer<RequestFacebookLoginMessage, ResponseUserLoginMessage>(facebookLoginRequestType, HandleRequestFacebookLogin);
-        }
-
-        [DevExtMethods("OnStartServer")]
-        protected void OnStartServer_FacebookLogin()
-        {
-            DatabaseServiceImplement.onCustomRequest -= onCustomRequest_FacebookLogin;
-            DatabaseServiceImplement.onCustomRequest += onCustomRequest_FacebookLogin;
-        }
-
-        public async Task<CustomResp> onCustomRequest_FacebookLogin(int type, ByteString data)
-        {
-            string userId = string.Empty;
-            if (type == CUSTOM_REQUEST_FACEBOOK_LOGIN)
-            {
-                NetDataReader reader = new NetDataReader(data.ToByteArray());
-                userId = await MMOServerInstance.Singleton.DatabaseNetworkManager.Database.FacebookLogin(reader.GetString(), reader.GetString());
-            }
-            NetDataWriter writer = new NetDataWriter();
-            writer.Put(userId);
-            return new CustomResp()
-            {
-                Type = CUSTOM_REQUEST_FACEBOOK_LOGIN,
-                Data = ByteString.CopyFrom(writer.Data)
-            };
         }
 
         protected async UniTaskVoid HandleRequestFacebookLogin(
@@ -67,20 +38,13 @@ namespace MultiplayerARPG.MMO
             Dictionary<string, object> dict = Json.Deserialize(json) as Dictionary<string, object>;
             if (dict.ContainsKey("id") && dict.ContainsKey("email"))
             {
-                string fbId = request.id;
-                string email = (string)dict["email"];
                 // Send request to database server
-                NetDataWriter writer = new NetDataWriter();
-                writer.Put(fbId);
-                writer.Put(email);
-                CustomResp resp = await DbServiceClient.CustomAsync(new CustomReq()
+                DbFacebookLoginResp resp = await DbServiceClient.RequestDbFacebookLogin(new DbFacebookLoginReq()
                 {
-                    Type = CUSTOM_REQUEST_FACEBOOK_LOGIN,
-                    Data = ByteString.CopyFrom(writer.Data)
+                    id = request.id,
+                    email = (string)dict["email"],
                 });
-                // Receive response from database server
-                NetDataReader dbReader = new NetDataReader(resp.Data.ToByteArray());
-                userId = dbReader.GetString();
+                userId = resp.userId;
             }
             // Response clients
             if (string.IsNullOrEmpty(userId))
