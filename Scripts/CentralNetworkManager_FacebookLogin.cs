@@ -39,12 +39,15 @@ namespace MultiplayerARPG.MMO
             if (dict.ContainsKey("id") && dict.ContainsKey("email"))
             {
                 // Send request to database server
-                DbFacebookLoginResp resp = await DbServiceClient.RequestDbFacebookLogin(new DbFacebookLoginReq()
+                AsyncResponseData<DbFacebookLoginResp> resp = await DbServiceClient.RequestDbFacebookLogin(new DbFacebookLoginReq()
                 {
                     id = request.id,
                     email = (string)dict["email"],
                 });
-                userId = resp.userId;
+                if (resp.ResponseCode == AckResponseCode.Success)
+                {
+                    userId = resp.Response.userId;
+                }
             }
             // Response clients
             if (string.IsNullOrEmpty(userId))

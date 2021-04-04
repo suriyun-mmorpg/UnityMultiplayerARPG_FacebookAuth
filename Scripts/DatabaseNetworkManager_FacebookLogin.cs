@@ -13,7 +13,7 @@ namespace MultiplayerARPG.MMO
             RegisterRequestToServer<DbFacebookLoginReq, DbFacebookLoginResp>(CUSTOM_REQUEST_FACEBOOK_LOGIN, DbFacebookLogin);
         }
 
-        protected async UniTask<AsyncResponseData<DbFacebookLoginResp>> RequestDbFacebookLogin(DbFacebookLoginReq request)
+        public async UniTask<AsyncResponseData<DbFacebookLoginResp>> RequestDbFacebookLogin(DbFacebookLoginReq request)
         {
             return await Client.SendRequestAsync<DbFacebookLoginReq, DbFacebookLoginResp>(CUSTOM_REQUEST_FACEBOOK_LOGIN, request);
         }
