@@ -6,7 +6,7 @@ namespace MultiplayerARPG.MMO
     {
         public void RequestFacebookLogin(string id, string accessToken, ResponseDelegate<ResponseUserLoginMessage> callback)
         {
-            centralNetworkManager.RequestFacebookLogin(id, accessToken, (responseHandler, responseCode, response) => OnRequestUserLogin(responseHandler, responseCode, response, callback));
+            centralNetworkManager.RequestFacebookLogin(id, accessToken, (responseHandler, responseCode, response) => OnRequestUserLogin(responseHandler, responseCode, response, callback).Forget());
         }
     }
 }
