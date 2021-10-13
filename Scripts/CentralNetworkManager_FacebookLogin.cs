@@ -30,6 +30,7 @@ namespace MultiplayerARPG.MMO
             UITextKeys message = UITextKeys.NONE;
             string userId = string.Empty;
             string accessToken = string.Empty;
+            long unbanTime = 0;
             // Validate by facebook api
             string url = "https://graph.facebook.com/" + request.id + "?access_token=" + request.accessToken + "&fields=id,name,email";
             WebClient webClient = new WebClient();
@@ -62,17 +63,30 @@ namespace MultiplayerARPG.MMO
             }
             else
             {
-                CentralUserPeerInfo userPeerInfo = new CentralUserPeerInfo();
-                userPeerInfo.connectionId = requestHandler.ConnectionId;
-                userPeerInfo.userId = userId;
-                userPeerInfo.accessToken = accessToken = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
-                userPeersByUserId[userId] = userPeerInfo;
-                userPeers[requestHandler.ConnectionId] = userPeerInfo;
-                await DbServiceClient.UpdateAccessTokenAsync(new UpdateAccessTokenReq()
+                GetUserUnbanTimeResp resp = await DbServiceClient.GetUserUnbanTimeAsync(new GetUserUnbanTimeReq()
                 {
-                    UserId = userId,
-                    AccessToken = accessToken
+                    UserId = userId
                 });
+                unbanTime = resp.UnbanTime;
+                if (unbanTime > DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                {
+                    message = UITextKeys.UI_ERROR_USER_BANNED;
+                    userId = string.Empty;
+                }
+                else
+                {
+                    CentralUserPeerInfo userPeerInfo = new CentralUserPeerInfo();
+                    userPeerInfo.connectionId = requestHandler.ConnectionId;
+                    userPeerInfo.userId = userId;
+                    userPeerInfo.accessToken = accessToken = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
+                    userPeersByUserId[userId] = userPeerInfo;
+                    userPeers[requestHandler.ConnectionId] = userPeerInfo;
+                    await DbServiceClient.UpdateAccessTokenAsync(new UpdateAccessTokenReq()
+                    {
+                        UserId = userId,
+                        AccessToken = accessToken
+                    });
+                }
             }
             // Response
             result.Invoke(
@@ -82,6 +96,7 @@ namespace MultiplayerARPG.MMO
                     message = message,
                     userId = userId,
                     accessToken = accessToken,
+                    unbanTime = unbanTime,
                 });
         }
 #endif
