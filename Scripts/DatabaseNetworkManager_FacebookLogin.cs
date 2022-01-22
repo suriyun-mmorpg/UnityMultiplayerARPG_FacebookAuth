@@ -13,9 +13,9 @@ namespace MultiplayerARPG.MMO
             RegisterRequestToServer<DbFacebookLoginReq, DbFacebookLoginResp>(CUSTOM_REQUEST_FACEBOOK_LOGIN, DbFacebookLogin);
         }
 
-        public async UniTask<AsyncResponseData<DbFacebookLoginResp>> RequestDbFacebookLogin(DbFacebookLoginReq request)
+        public UniTask<AsyncResponseData<DbFacebookLoginResp>> RequestDbFacebookLogin(DbFacebookLoginReq request)
         {
-            return await Client.SendRequestAsync<DbFacebookLoginReq, DbFacebookLoginResp>(CUSTOM_REQUEST_FACEBOOK_LOGIN, request);
+            return Client.SendRequestAsync<DbFacebookLoginReq, DbFacebookLoginResp>(CUSTOM_REQUEST_FACEBOOK_LOGIN, request);
         }
 
         protected async UniTaskVoid DbFacebookLogin(RequestHandlerData requestHandler, DbFacebookLoginReq request, RequestProceedResultDelegate<DbFacebookLoginResp> result)
@@ -23,7 +23,7 @@ namespace MultiplayerARPG.MMO
 #if UNITY_STANDALONE && !CLIENT_BUILD
             result.Invoke(AckResponseCode.Success, new DbFacebookLoginResp()
             {
-                userId = await MMOServerInstance.Singleton.DatabaseNetworkManager.Database.FacebookLogin(request.id, request.email),
+                userId = await Database.FacebookLogin(request.id, request.email),
             });
 #endif
         }
