@@ -20,7 +20,7 @@ namespace MultiplayerARPG.MMO
 
         protected async UniTaskVoid DbFacebookLogin(RequestHandlerData requestHandler, DbFacebookLoginReq request, RequestProceedResultDelegate<DbFacebookLoginResp> result)
         {
-#if UNITY_STANDALONE && !CLIENT_BUILD
+#if UNITY_SERVER || !MMO_BUILD
             result.Invoke(AckResponseCode.Success, new DbFacebookLoginResp()
             {
                 userId = await Database.FacebookLogin(request.id, request.email),
