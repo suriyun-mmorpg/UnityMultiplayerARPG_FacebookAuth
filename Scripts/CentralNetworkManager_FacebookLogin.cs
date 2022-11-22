@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_SERVER
+﻿#if (UNITY_EDITOR || UNITY_SERVER) && UNITY_STANDALONE
 using Cysharp.Threading.Tasks;
 using MiniJSON;
 using System;
@@ -16,7 +16,7 @@ namespace MultiplayerARPG.MMO
         [Header("Facebook Login")]
         public ushort facebookLoginRequestType = 210;
 
-#if UNITY_EDITOR || UNITY_SERVER
+#if (UNITY_EDITOR || UNITY_SERVER) && UNITY_STANDALONE
         [DevExtMethods("RegisterServerMessages")]
         protected void RegisterServerMessages_FacebookLogin()
         {
