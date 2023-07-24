@@ -71,7 +71,18 @@ namespace MultiplayerARPG.MMO
             else
             {
                 // Show error message
-                UISceneGlobal.Singleton.ShowMessageDialog("Cannot Login", "User cancelled login");
+                if (result.Cancelled)
+                {
+                    UISceneGlobal.Singleton.ShowMessageDialog("Cannot Login", "User cancelled login");
+                }
+                else if (!string.IsNullOrEmpty(result.Error))
+                {
+                    UISceneGlobal.Singleton.ShowMessageDialog("Cannot Login", result.Error);
+                }
+                else
+                {
+                    UISceneGlobal.Singleton.ShowMessageDialog("Cannot Login", "Unknow error:\n" + result.RawResult);
+                }
             }
         }
 
