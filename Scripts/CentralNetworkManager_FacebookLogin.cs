@@ -40,7 +40,7 @@ namespace MultiplayerARPG.MMO
             if (dict.ContainsKey("id") && dict.ContainsKey("email"))
             {
                 // Send request to database server
-                AsyncResponseData<DbFacebookLoginResp> resp = await DbServiceClient.RequestDbFacebookLogin(new DbFacebookLoginReq()
+                AsyncResponseData<DbFacebookLoginResp> resp = await DatabaseClient.RequestDbFacebookLogin(new DbFacebookLoginReq()
                 {
                     id = request.id,
                     email = (string)dict["email"],
@@ -72,7 +72,7 @@ namespace MultiplayerARPG.MMO
                 });
                 return;
             }
-            DatabaseApiResult<GetUserUnbanTimeResp> unbanTimeResp = await DbServiceClient.GetUserUnbanTimeAsync(new GetUserUnbanTimeReq()
+            DatabaseApiResult<GetUserUnbanTimeResp> unbanTimeResp = await DatabaseClient.GetUserUnbanTimeAsync(new GetUserUnbanTimeReq()
             {
                 UserId = userId
             });
@@ -99,7 +99,7 @@ namespace MultiplayerARPG.MMO
             userPeerInfo.accessToken = accessToken = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
             _userPeersByUserId[userId] = userPeerInfo;
             _userPeers[requestHandler.ConnectionId] = userPeerInfo;
-            await DbServiceClient.UpdateAccessTokenAsync(new UpdateAccessTokenReq()
+            await DatabaseClient.UpdateAccessTokenAsync(new UpdateAccessTokenReq()
             {
                 UserId = userId,
                 AccessToken = accessToken
