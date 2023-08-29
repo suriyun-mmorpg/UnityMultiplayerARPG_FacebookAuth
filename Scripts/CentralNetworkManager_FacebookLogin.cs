@@ -17,7 +17,6 @@ namespace MultiplayerARPG.MMO
         [Header("Facebook Login")]
         public ushort facebookLoginRequestType = 210;
 
-#if (UNITY_EDITOR || UNITY_SERVER) && UNITY_STANDALONE
         [DevExtMethods("RegisterServerMessages")]
         protected void RegisterServerMessages_FacebookLogin()
         {
@@ -28,6 +27,7 @@ namespace MultiplayerARPG.MMO
             RequestHandlerData requestHandler, RequestFacebookLoginMessage request,
             RequestProceedResultDelegate<ResponseUserLoginMessage> result)
         {
+#if (UNITY_EDITOR || UNITY_SERVER) && UNITY_STANDALONE
             string userId = string.Empty;
             string accessToken = string.Empty;
             long unbanTime = 0;
@@ -111,8 +111,8 @@ namespace MultiplayerARPG.MMO
                 accessToken = accessToken,
                 unbanTime = unbanTime,
             });
-        }
 #endif
+        }
 
         public bool RequestFacebookLogin(string id, string accessToken, ResponseDelegate<ResponseUserLoginMessage> callback)
         {
