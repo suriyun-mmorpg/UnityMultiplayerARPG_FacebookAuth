@@ -6,9 +6,8 @@ namespace MultiplayerARPG.MMO
 {
     public partial class SQLiteDatabase
     {
-        public override async UniTask<string> FacebookLogin(string fbId, string email)
+        public override UniTask<string> FacebookLogin(string fbId, string email)
         {
-            await UniTask.Yield();
             string id = string.Empty;
             ExecuteReader((reader) =>
             {
@@ -29,7 +28,7 @@ namespace MultiplayerARPG.MMO
                     new SqliteParameter("@email", email),
                     new SqliteParameter("@authType", AUTH_TYPE_FACEBOOK));
             }
-            return id;
+            return UniTask.FromResult(id);
         }
     }
 }
