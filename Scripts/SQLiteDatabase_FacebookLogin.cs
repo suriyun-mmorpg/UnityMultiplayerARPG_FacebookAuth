@@ -15,7 +15,7 @@ namespace MultiplayerARPG.MMO
                     id = reader.GetString(0);
             }, "SELECT id FROM userlogin WHERE username=@username AND password=@password AND authType=@authType LIMIT 1",
                 new SqliteParameter("@username", "fb_" + fbId),
-                new SqliteParameter("@password", fbId.PasswordHash()),
+                new SqliteParameter("@password", UserLoginManager.GetHashedPassword(fbId)),
                 new SqliteParameter("@authType", AUTH_TYPE_FACEBOOK));
 
             if (string.IsNullOrEmpty(id))
@@ -24,7 +24,7 @@ namespace MultiplayerARPG.MMO
                 ExecuteNonQuery("INSERT INTO userlogin (id, username, password, email, authType) VALUES (@id, @username, @password, @email, @authType)",
                     new SqliteParameter("@id", id),
                     new SqliteParameter("@username", "fb_" + fbId),
-                    new SqliteParameter("@password", fbId.PasswordHash()),
+                    new SqliteParameter("@password", UserLoginManager.GetHashedPassword(fbId)),
                     new SqliteParameter("@email", email),
                     new SqliteParameter("@authType", AUTH_TYPE_FACEBOOK));
             }
